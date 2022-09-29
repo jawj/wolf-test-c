@@ -1,4 +1,4 @@
-/* client-tls-callback.c
+/* The file is based on: client-tls-callback.c
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -19,7 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-/* compile wolfssl like so:
+/* 
+
+compile wolfssl like so:
 
 # download from GitHub releases + untar
 cd wolfssl-5.5.1-stable
@@ -27,13 +29,19 @@ brew install brew install autoconf automake libtool
 ./autogen
 ./configure \
   --disable-filesystem --disable-examples --disable-oldtls \
-  --enable-sni --enable-tls13 --enable-altcertchains  # alt cert chains are required for Let's Encrypt certs
+  --enable-sni --enable-tls13 \
+  --enable-altcertchains  # alt cert chains are required for Let's Encrypt certs: https://github.com/wolfSSL/wolfssl/issues/4443
 make
-make install
+make install  # to /usr/local/include
+
+test like so:
+
+make client-tls-callback
+./client-tls-callback neon.tech 443
+./client-tls-callback expired.badssl.com 443  # see badssl.com for other testing domains
 
 */
 
-/* the usual suspects */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -220,9 +228,8 @@ int main(int argc, char** argv)
     servAddr.sin_port = htons(atoi(tlsPort));
     servAddr.sin_addr.s_addr = *((unsigned long *)hostnm->h_addr);
 
-    /* Connect to the server */
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
-        == -1) {
+    /* Open TCP connection to the server */
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         ret = -1; 
         goto exit;
@@ -235,7 +242,7 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-    /* NEW: SNI */
+    /* NEW: enable SNI */
     if ((ret = wolfSSL_UseSNI(ssl, WOLFSSL_SNI_HOST_NAME, tlsHost, strlen(tlsHost))) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to set host for SNI\n");
         goto exit;
@@ -250,7 +257,7 @@ int main(int argc, char** argv)
         goto exit;
     };
 
-    /* Connect to wolfSSL on the server side */
+    /* TLS handshake with server */
     if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
         int err = wolfSSL_get_error(ssl, ret);
         fprintf(stderr, "ERROR: failed to connect to wolfSSL, error %i\n", err);
