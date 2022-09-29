@@ -21,7 +21,7 @@
 
 /* 
 
-compile wolfssl like so:
+(1) on Mac with homebrew, compile wolfssl like so:
 
 # download from GitHub releases + untar
 cd wolfssl-5.5.1-stable
@@ -34,7 +34,7 @@ brew install brew install autoconf automake libtool
 make
 make install  # to /usr/local/include
 
-test like so:
+(2) compile and test like so:
 
 make client-tls-callback
 ./client-tls-callback neon.tech 443
