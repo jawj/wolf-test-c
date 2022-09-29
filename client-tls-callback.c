@@ -175,13 +175,14 @@ int main(int argc, char** argv)
     WOLFSSL*     ssl = NULL;
 
     /* Check for proper calling convention */
-    if (argc != 3) {
-        printf("usage: %s <IPv4 address> <port>\n", argv[0]);
+    if (argc != 4) {
+        printf("usage: %s <IPv4 address> <port> <path (e.g. /)>\n", argv[0]);
         return 0;
     }
 
     char *tlsHost = argv[1];
     char *tlsPort = argv[2];
+    char *reqPath = argv[3];
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
@@ -265,7 +266,7 @@ int main(int argc, char** argv)
     }
 
     char getReqBuff[1024];
-    snprintf(getReqBuff, sizeof(getReqBuff), "GET / HTTP/1.0\r\nHost: %s\r\n\r\n", tlsHost);
+    snprintf(getReqBuff, sizeof(getReqBuff), "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n", reqPath, tlsHost);
     len = strlen(getReqBuff);
 
     /* Send the message to the server */
