@@ -1,0 +1,13 @@
+{
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "files.associations": {
+    "errno.h": "c",
+    "options.h": "c",
+    "stdio.h": "c"
+  }
+}

@@ -1,0 +1,36 @@
+
+jstlsclient.c file compiles to a simple library for TLS within JavaScript.
+
+(1) on a Mac with homebrew, compile WolfSSL using Emscripten
+
+# note: alt cert chains are required for Let's Encrypt certs,
+# see https://github.com/wolfSSL/wolfssl/issues/4443
+
+brew install brew install autoconf automake libtool
+
+# download WolfSSL from GitHub releases and untar/unzip
+
+cd wolfssl-5.5.1-stable
+
+./autogen
+
+emconfigure ./configure \
+  --disable-filesystem --disable-examples --disable-asm --enable-static \
+  --enable-tls13 --disable-oldtls --enable-sni --enable-altcertchains
+
+emmake make
+
+
+(2) compile and link this file with WolfSSL
+
+emcc -c -Os -I../wolfssl-5.5.1-stable/ jstlsclient.c
+
+emcc jstlsclient.o \
+  ../wolfssl-5.5.1-stable/wolfcrypt/src/*.o ../wolfssl-5.5.1-stable/src/*.o \
+  -o wolfssl.js \
+  -sALLOW_TABLE_GROWTH \
+  -sEXPORTED_FUNCTIONS=_malloc,_init,_handshake,_cleanup,_receiveData,_writeData \
+  -sEXPORTED_RUNTIME_METHODS=addFunction,ccall,cwrap \
+  --post-js post-run.js
+
+  
